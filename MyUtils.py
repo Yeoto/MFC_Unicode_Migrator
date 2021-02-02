@@ -21,7 +21,10 @@ class FunctionConvertor:
         pattern = re.compile('([\w_]+)')
         iter = pattern.finditer(line)
 
-        for match in iter:
+        match_list = list(iter)
+        match_list.reverse()
+
+        for match in match_list:
             strFunc = match.group()
             if strFunc in self.dict_StringFunc2GenericFunc:
                 start = match.start(0)
@@ -29,7 +32,7 @@ class FunctionConvertor:
 
                 substring_1 = line[:start]
                 substring_2 = line[end:]
-                return substring_1 + self.dict_StringFunc2GenericFunc[strFunc] + substring_2
+                line = substring_1 + self.dict_StringFunc2GenericFunc[strFunc] + substring_2
 
         return line
 
