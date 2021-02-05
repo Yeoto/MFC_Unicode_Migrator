@@ -36,13 +36,13 @@ class FunctionConvertor:
 
         return line
 
-def GetAllFileWithExt(path, wildcard):
+def GetAllFileWithExt(path, wildcard, bNotFindUnder):
     Filtered_File = []
     filenames = os.listdir(path)
     for filename in filenames:
         full_path = os.path.join(path, filename)
-        if os.path.isdir(full_path):
-            Filtered_File += GetAllFileWithExt(full_path, wildcard)
+        if bNotFindUnder == False and os.path.isdir(full_path):
+            Filtered_File += GetAllFileWithExt(full_path, wildcard, False)
         if len(wildcard) > 1:
             ext = os.path.splitext(filename)[-1]
             if ext not in wildcard:
@@ -107,8 +107,17 @@ def ConvertLiteralString2TCHARString(line):
         if start < match_tuple_next[1] and match_tuple_next[1] < end:
             Delete_Idx.append(tuple_idx-1)
 
-        if start > 3 and end < len(line):
+        if start >= 3 and end < len(line):
             if line[start-3:start] == "_T(" and line[end:end+1] == ")":
+                continue
+
+        if start >= 5 and end < len(line):
+            if line[start-5:start] == "TEXT(" and line[end:end+1] == ")":
+                continue
+
+        if start >= 7 and end < len(line):
+            pattern2 = re.compile(r'TRACE\d\(')
+            if pattern2.match(line[start-7:start]) != None:
                 continue
 
         substring_1 = line[:start]
