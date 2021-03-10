@@ -25,24 +25,34 @@ def main():
 
     FileList = MyUtils.GetAllFileWithExt(src_path, extension, bNotFindUnder)
 
+    encoding_list = ['cp949', 'gb2312', 'utf-8', 'utf-8-sig']
     ErrorFiles = []
     for FilePath in tqdm(FileList):
-        try:
-            file = open(FilePath, 'r')
-            lines = file.readlines()
-            new_lines = MyUtils.ConvertAll(lines)
+        file_encoding = ''
+        lines = []
+        for encoding in encoding_list:
+            file_encoding = encoding
+            try:
+                file = open(FilePath, 'r', encoding=encoding)
+                lines = file.readlines()
+            except UnicodeDecodeError:
+                continue
+            break
 
-            split_list = os.path.splitext(FilePath)
-            file_out = file
-            if bMakeTemp == True:
-                file_out = open( "".join(split_list[0:-1])+'_Temp'+split_list[-1], 'w' )
-            else:
-                file_out = open( FilePath, 'w' )
-
-            file_out.writelines(new_lines)
-        except UnicodeDecodeError:
+        if len(lines) == 0:
             ErrorFiles.append(FilePath)
+            continue
 
+        new_lines = MyUtils.ConvertAll(lines)
+
+        split_list = os.path.splitext(FilePath)
+        file_out = file
+        if bMakeTemp == True:
+            file_out = open( "".join(split_list[0:-1])+'_Temp'+split_list[-1], 'w', encoding=file_encoding )
+        else:
+            file_out = open( FilePath, 'w', encoding=file_encoding )
+
+        file_out.writelines(new_lines)
     for ErrorFile in ErrorFiles:
         print("Can't Encoding This File! Path : {}".format(ErrorFile))
     

@@ -38,6 +38,10 @@ class FunctionConvertor:
 
 def GetAllFileWithExt(path, wildcard, bNotFindUnder):
     Filtered_File = []
+
+    if os.path.isfile(path):
+        return [path]
+
     filenames = os.listdir(path)
     for filename in filenames:
         full_path = os.path.join(path, filename)
@@ -64,6 +68,9 @@ def ConvertAll(lines : list):
 
         line = ConvertLiteralString2TCHARString(line)
         line = FuncConv.ConvertStringFunc2GenericFunc(line)
+        line = FixError_Overlap_T(line)
+        line = FixError_GetProcAddress(line)
+
         new_lines.append(line)
 
     return new_lines
@@ -126,4 +133,21 @@ def ConvertLiteralString2TCHARString(line):
 
         line = substring_1 + "_T(" + substring_2 + ")" + substring_3
 
+    return line
+
+
+def FixError_Overlap_T(line):
+    #_T\([ ]*(_T\([ ]*".+?"[ ]*\))[ ]*\)
+    #$1
+    rslt = re.subn(r'_T\([ ]*(_T\([ ]*".*?"[ ]*\))[ ]*\)', r'\1', line)
+    if rslt[1] > 0:
+        return rslt[0]
+    return line
+
+def FixError_GetProcAddress(line):
+    #GetProcAddress\((.+,[ ])*_T\((.+?)\)\)
+    #GetProcAddress($1$2)
+    rslt = re.subn(r'GetProcAddress\((.+,[ ])*_T\((.+?)\)\)', r'GetProcAddress(\1\2)', line)
+    if rslt[1] > 0:
+        return rslt[0]
     return line
