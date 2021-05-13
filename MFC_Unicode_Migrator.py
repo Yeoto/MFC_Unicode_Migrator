@@ -19,13 +19,21 @@ def main():
     extension = []
     bMakeTemp = "/Temp" in sys.argv
     bNotFindUnder = "/NoneRecursive" in sys.argv
+    bFileListTXT = False
+    if os.path.isfile(src_path):
+        if os.path.splitext(src_path)[-1] == '.txt':
+            bFileListTXT = True
 
     if nSizeArg > 2:
         extension = sys.argv[2].split(';')
 
-    FileList = MyUtils.GetAllFileWithExt(src_path, extension, bNotFindUnder)
+    FileList = []
+    if bFileListTXT == False:
+        FileList = MyUtils.GetAllFileWithExt(src_path, extension, bNotFindUnder)
+    else:
+        FileList = MyUtils.GetFileListFromTextFile(src_path, extension)
 
-    encoding_list = ['cp949', 'gb2312', 'utf-8', 'utf-8-sig']
+    encoding_list = ['cp949', 'gb2312', 'utf-8', 'utf-8-sig', 'utf-16']
     ErrorFiles = []
     for FilePath in tqdm(FileList):
         file_encoding = ''

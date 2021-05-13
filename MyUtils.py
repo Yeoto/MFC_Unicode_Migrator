@@ -54,6 +54,22 @@ def GetAllFileWithExt(path, wildcard, bNotFindUnder):
         Filtered_File.append(full_path)
     return Filtered_File
 
+def GetFileListFromTextFile(path, extension):
+    Filtered_File = []
+    file = open(path)
+    lines = file.readlines()
+    for line in lines:
+        line = line.strip()
+        ext = os.path.splitext(line)[-1]
+        if ext not in extension:
+            continue
+
+        if not os.path.isfile(line):
+            continue
+
+        Filtered_File.append(line)
+    return Filtered_File
+
 def ConvertAll(lines : list):
     new_lines = []
     FuncConv = FunctionConvertor()
